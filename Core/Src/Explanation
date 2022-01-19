@@ -1,0 +1,51 @@
+-data sheet info-
+
+The simplest way to connect to the GPS module is to use only the first three pins: GND, VIN,
+TXD. These are compatible with the 3-pin ports/servo headers found on Parallax development
+boards, such as Propeller Activity Board WX (#32912). When connected to a power source, the
+GPS module will automatically begin transmitting serial NMEA data out of the TXD pin, once per
+second.
+
+Top of page 7: Default settings.
+URAT: 9600 baud, 8 data bits, no parity, 1 stop bit
+
+The entirety of page 7 and page 8.
+
+
+
+
+
+
+
+
+
+Set NMEA sentence output frequencies. 
+Keep status after reboot->Yes
+There are totally 19 data fields that present output frequencies for the 19 supported NMEA sentences 
+individually. 
+Supported NMEA Sentences:
+0 NMEA_SEN_GLL, // GPGLL interval - Geographic Position - Latitude longitude 
+1 NMEA_SEN_RMC, // GPRMC interval - Recomended Minimum Specific GNSS Sentence 
+2 NMEA_SEN_VTG, // GPVTG interval - Course Over Ground and Ground Speed 
+3 NMEA_SEN_GGA, // GPGGA interval - GPS Fix Data 
+4 NMEA_SEN_GSA, // GPGSA interval - GNSS DOPS and Active Satellites 
+5 NMEA_SEN_GSV, // GPGSV interval - GNSS Satellites in View 
+6 NMEA_SEN_GRS, //GPGRS interval – GNSS Range Residuals
+7 NMEA_SEN_GST, //GPGST interval – GNSS Pseudorange Errors Statistics
+17 NMEA_SEN_ZDA, // GPZDA interval – Time & Date 
+18 NMEA_SEN_MCHN, //PMTKCHN interval – GNSS channel status
+19 NMEA_SEN_DTM, //GPDTM interval – Datum reference
+Supported Frequency Setting 
+0 - Disabled or not supported sentence 
+1 - Output once every one position fix 
+2 - Output once every two position fixes 
+3 - Output once every three position fixes 
+4 - Output once every four position fixes 
+5 - Output once every five position fixes 
+Example: 
+$PMTK314,1,1,1,1,1,5,0,0,0,0,0,0,0,0,0,0,0,1,1,0*30<CR><LF> 
+This command set GLL output frequency to be outputting once every 1 position fix, and RMC to be 
+outputting once every 1 position fix, and so on. 
+ 
+You can also restore the system default setting via issue: 
+$PMTK314,-1*04<CR><LF>
