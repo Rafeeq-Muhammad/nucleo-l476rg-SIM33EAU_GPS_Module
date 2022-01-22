@@ -67,6 +67,10 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/*
+ * Print and newline functions.
+ */
 void print(char *message) {
 	HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), 200);
 }
@@ -167,7 +171,7 @@ int main(void) {
 	//char command[100] = "$PMTK314,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"; // GNVTG sentence only. Sentence length: 33;
 	//char command[100] = "$PMTK314,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*29\r\n"; //all sentences
 	char command[100] = "$PMTK314,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0*28\r\n"; //GLL, VTG, and GGA sentences only
-	HAL_UART_Transmit(&huart1, (uint8_t*) command, strlen(command), 200);//this command is sent to the gps�.
+	HAL_UART_Transmit(&huart1, (uint8_t*) command, strlen(command), 200); //Send the command to the gps to display certain sentences.
 
 
 	/* USER CODE END 2 */
@@ -175,8 +179,6 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
-		newline();
-		print("while loop");
 		if (flag == 1) { // interrupt signals that the buffer buff[300] is full
 			println("flag == 1");
 
@@ -214,55 +216,11 @@ int main(void) {
 			// see http://www.manpagez.com/man/3/strsep/
 			char *token, *string;
 
-			//EITHER USE STRDUP, FREE AT THE END
-			//string = strdup(buffStr);
-
-			//OR USE STRCPY, NO FREEING AT THE END
 			char buffStr_copy[255];
 			strcpy(buffStr_copy, buffStr);
 			string = buffStr_copy;
 
-			newline();
-			newline();
-			newline();
-			newline();
-			println("********");
-			println("********");
-			println("********");
-			println("********");
-			println("********BUFF START:");
-			println(buffStr);
-			println("********BUFF END");
-			println("********");
-			println("********");
-			println("********");
-			println("********");
-			newline();
-			newline();
-			newline();
-			newline();
-
 			// actually splitting the string by "\n" delimiter
-			println("BEFORE newline splitting");
-			newline();
-			newline();
-			newline();
-			newline();
-			println("********");
-			println("********");
-			println("********");
-			println("********");
-			println("********STRING START:");
-			println(string);
-			println("********STRING END");
-			println("********");
-			println("********");
-			println("********");
-			println("********");
-			newline();
-			newline();
-			newline();
-			newline();
 			while ((token = strsep(&string, "\n")) != NULL) {
 				println("AFTER newline splitting");
 
@@ -272,10 +230,7 @@ int main(void) {
 
 				// selecting only $GNGLL sentences, combined GPS and GLONASS
 				// on my GPS sensor this good NMEA sentence is always 50 characters
-				//println("BEFORE gll good");
 				if ((strstr(nmeaSnt, "$GNGLL") != 0) && strlen(nmeaSnt) >= 49 && strstr(nmeaSnt, "*") != 0) {
-					//println("AFTER gll good");
-
 					rawSum = strstr(nmeaSnt, "*");
 
 					memcpy(smNmbr, &rawSum[1], 2);
@@ -291,9 +246,7 @@ int main(void) {
 
 					// checksum data verification, if OK, then we can really trust
 					// the data in the the NMEA sentence
-					//println("BEFORE gll checksum");
 					if (strstr(smNmbr, hex) != NULL) {
-						//println("AFTER gll checksum");
 
 						//if we want display good $GNGLL NMEA sentences
 						HAL_UART_Transmit(&huart2, (uint8_t*)nmeaSnt, 50, 70);
@@ -302,33 +255,26 @@ int main(void) {
 						cnt = 0;
 
 						// splitting the good NMEA sentence into the tokens by the comma delimiter
-						//println("BEFORE gll splitting");
 						for (char *pV = strtok(nmeaSnt, ","); pV != NULL; pV = strtok(NULL, ",")) {
-							//println("AFTER gll splitting");
 
 							switch (cnt) {
 							case 1:
-								//latRaw = strdup(pV);
 								strcpy(latRawbuff, pV);
 								latRaw = latRawbuff;
 								break;
 							case 2:
-								//hemNS = strdup(pV);
 								strcpy(hemNSbuff, pV);
 								hemNS = hemNSbuff;
 								break;
 							case 3:
-								//lonRaw = strdup(pV);
 								strcpy(lonRawbuff, pV);
 								lonRaw = lonRawbuff;
 								break;
 							case 4:
-								//hemEW = strdup(pV);
 								strcpy(hemEWbuff, pV);
 								hemEW = hemEWbuff;
 								break;
 							case 5:
-								//utcRaw = strdup(pV);
 								strcpy(utcRawbuff, pV);
 								utcRaw = utcRawbuff;
 								break;
@@ -349,17 +295,7 @@ int main(void) {
 
 						memcpy(lonMS, &lonRaw[3], 7);
 						lonMS[7] = '\0';
-						//char strLonMS[7];
 						sprintf(strLonMS, "%s", lonMS);
-
-						//strcpy(strLonMS, lonMS);
-//						newline();
-//						print("*****INSIDE LONMS: ");
-//						println(lonMS);
-//						newline();
-//						print("*****INSIDE STRLONMS: ");
-//						println(strLonMS);
-						newline();
 
 						//converting the UTC time in the hh:mm:ss format
 						memcpy(hH, &utcRaw[0], 2);
@@ -377,28 +313,6 @@ int main(void) {
 						strcat(strUTC, ":");
 						strcat(strUTC, sS);
 						strUTC[8] = '\0';
-
-
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "Coordinates/Timestamp: ", 23, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-
-						// HAL_UART_Transmit(&huart2, (uint8_t*) hemNS, 1, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) " ", 1, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) latDg, 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "°", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) latMS, 7, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\', ", 3, 200);
-
-						// HAL_UART_Transmit(&huart2, (uint8_t*) hemEW, 1, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) " ", 1, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) lonDg, 3, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "°", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) strLonMS, strlen(strLonMS), 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\', UTC: ", 8, 200);
-
-						// HAL_UART_Transmit(&huart2, (uint8_t*) strUTC, 8, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
 
 						//Coordinates/Timestamp:
 						newline();
@@ -431,9 +345,7 @@ int main(void) {
 				//VTG
 				// selecting only $GNVTG sentences, combined GPS and GLONASS
 				// on my GPS sensor this good NMEA sentence is always 33 characters
-				//println("BEFORE vtg good");
 				if ((strstr(nmeaSnt, "$GNVTG") != 0) && strlen(nmeaSnt) >= 32 && strstr(nmeaSnt, "*") != 0) {
-					//println("AFTER vtg good");
 
 					rawSum = strstr(nmeaSnt, "*");
 
@@ -450,9 +362,7 @@ int main(void) {
 
 					// checksum data verification, if OK, then we can really trust
 					// the data in the the NMEA sentence
-					//println("BEFORE vtg checksum");
 					if (strstr(smNmbr, hex) != NULL) {
-						//println("AFTER vtg checksum");
 
 						//if we want display good $GNVTG NMEA sentences
 						HAL_UART_Transmit(&huart2, (uint8_t*)nmeaSnt, 33, 70);
@@ -461,13 +371,9 @@ int main(void) {
 						cnt = 0;
 
 						// splitting the good NMEA sentence into the tokens by the comma delimiter
-						//println("BEFORE vtg splitting");
 						for (char *pV = strtok(nmeaSnt, ","); pV != NULL; pV = strtok(NULL, ",")) {
-							//println("AFTER vtg splitting");
 							switch(cnt) {
 								case 6:
-									//strcpy(ground_speed, pV);
-									//ground_speed_raw = strdup(pV);
 									strcpy(ground_speed_buff, pV);
 									ground_speed_raw = ground_speed_buff;
 									break;
@@ -478,12 +384,6 @@ int main(void) {
 						}  // end for()
 						memcpy(ground_speed_buff, &ground_speed_raw[0], 7);
 						ground_speed_buff[7] = '\0';
-
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "Speed (kph): ", 13, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) ground_speed, 5, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
 
 						//Speed
 						newline();
@@ -499,9 +399,7 @@ int main(void) {
 				//GGA
 				// selecting only $GNGGA sentences, combined GPS and GLONASS
 				// on my GPS sensor this good NMEA sentence is always 72 characters
-				//println("BEFORE gga good");
 				if ((strstr(nmeaSnt, "$GNGGA") != 0) && strlen(nmeaSnt) >= 71 && strstr(nmeaSnt, "*") != 0) {
-					//println("AFTER gga good");
 
 					rawSum = strstr(nmeaSnt, "*");
 
@@ -518,9 +416,7 @@ int main(void) {
 
 					// checksum data verification, if OK, then we can really trust
 					// the data in the the NMEA sentence
-					//println("BEFORE gga checksum");
 					if (strstr(smNmbr, hex) != NULL) {
-						//println("AFTER gga checksum");
 
 						//if we want display good $GNGGA NMEA sentences
 						HAL_UART_Transmit(&huart2, (uint8_t*)nmeaSnt, 72, 70);
@@ -529,9 +425,7 @@ int main(void) {
 						cnt = 0;
 
 						// splitting the good NMEA sentence into the tokens by the comma delimiter
-						//println("BEFORE gga splitting");
 						for (char *pV = strtok(nmeaSnt, ","); pV != NULL; pV = strtok(NULL, ",")) {
-							//println("AFTER gga splitting");
 
 							switch(cnt) {
 								case 9:
@@ -542,12 +436,6 @@ int main(void) {
 							cnt++;
 
 						}  // end for()
-
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "Altitude (above mean sea level): ", 33, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) altitude, 4, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-						// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
 
 						//Altitude
 						newline();
@@ -561,84 +449,6 @@ int main(void) {
 				} // end of $GNGAA sentences selection
 
 			} // end of splitting the buffStr by the "\n" delimiter with the strsep() C function
-//
-//			free(string);
-//			free(latRaw);
-//			free(hemNS);
-//			free(lonRaw);
-//			free(hemEW);
-//			free(utcRaw);
-//			free(ground_speed_raw);
-
-
-
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "Coordinates/Timestamp: ", 23, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-
-			// HAL_UART_Transmit(&huart2, (uint8_t*) hemNS, 1, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) " ", 1, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) latDg, 2, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "°", 2, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) latMS, 7, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "\', ", 3, 200);
-
-			// HAL_UART_Transmit(&huart2, (uint8_t*) hemEW, 1, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) " ", 1, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) lonDg, 3, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "°", 2, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) strLonMS, strlen(strLonMS), 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "\', UTC: ", 8, 200);
-
-			// HAL_UART_Transmit(&huart2, (uint8_t*) strUTC, 8, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-			// HAL_UART_Transmit(&huart2, (uint8_t*) "\r\n", 2, 200);
-
-			//Coordinates/Timestamp
-//			newline();
-//			print("*****OUTSIDE LONMS: ");
-//			println(lonMS);
-//			newline();
-//			print("*****OUTSIDE STRLONMS: ");
-//			println(strLonMS);
-//			newline();
-
-
-
-//			//Coordinates/Timestamp:
-//			newline();
-//			print("Coordinates/Timestamp:");
-//			newline();
-//
-//			print(hemNS);
-//			print(" ");
-//			print(latDg);
-//			print("°");
-//			print(latMS);
-//			print("\', ");
-//			print(hemEW);
-//			print(" ");
-//			print(lonDg);
-//			print("°");
-//			//print(strLonMS);
-//			print(lonMS);
-//
-//			print("\', UTC: ");
-//			println(strUTC);
-//			newline();
-
-//			//Speed
-//			println("Speed (kph):");
-//			println(ground_speed);
-//			newline();
-
-
-//			//Altitude
-//			println("Altitude (above mean sea level):");
-//			println(altitude);
-//			newline();
-
-			//ground_speed[7] = "\0";//clear buff
-			//memset(ground_speed, 0, 7);
 
 			flag = 0; // we are ready to get new data from the sensor
 
