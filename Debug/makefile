@@ -11,6 +11,7 @@ RM := rm -rf
 -include sources.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
+-include Core/Src/gps/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk
 
@@ -60,8 +61,8 @@ all: main-build
 main-build: nucleo-l476rg-SIM33EAU_GPS_Module.elf secondary-outputs
 
 # Tool invocations
-nucleo-l476rg-SIM33EAU_GPS_Module.elf: $(OBJS) $(USER_OBJS) /home/rafeeqm/Desktop/nucleo-l476rg-SIM33EAU_GPS_Module/STM32L476RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "nucleo-l476rg-SIM33EAU_GPS_Module.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/rafeeqm/Desktop/nucleo-l476rg-SIM33EAU_GPS_Module/STM32L476RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="nucleo-l476rg-SIM33EAU_GPS_Module.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+nucleo-l476rg-SIM33EAU_GPS_Module.elf: $(OBJS) $(USER_OBJS) C:\Users\rafee\Desktop\nucleo-l476rg-SIM33EAU_GPS_Module\STM32L476RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "nucleo-l476rg-SIM33EAU_GPS_Module.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\rafee\Desktop\nucleo-l476rg-SIM33EAU_GPS_Module\STM32L476RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="nucleo-l476rg-SIM33EAU_GPS_Module.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

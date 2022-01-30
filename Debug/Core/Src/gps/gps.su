@@ -1,0 +1,6 @@
+gps.c:32:6:HAL_UART_RxCpltCallback	16	static
+gps.c:38:5:nmea0183_checksum	24	static
+gps.c:51:6:print	16	static
+gps.c:55:6:println	16	static
+gps.c:60:6:newline	8	static
+gps.c:64:7:get_gps_data	1176	static
